@@ -11,7 +11,7 @@ import (
 )
 
 func DBinstance() *mongo.Client {
-	MongoDb := "mongodb://localhost:27017/todos"
+	MongoDb := "mongodb://localhost:27017/todo"
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -32,7 +32,7 @@ func DBinstance() *mongo.Client {
 var Client *mongo.Client = DBinstance()
 
 func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	var collection *mongo.Collection = client.Database("todos").Collection(collectionName)
+	var collection *mongo.Collection = client.Database("todo").Collection(collectionName)
 
 	return collection
 }
