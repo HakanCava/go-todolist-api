@@ -18,10 +18,11 @@ func main() {
 	router.Use(cors.Default())
 
 	router.POST("/todo/create", routes.CreateTodo)
-	router.PUT("/todo/update", routes.UpdateTodo)
+	router.PUT("/todo/update/:id", routes.UpdateTodo)
 	router.GET("/todos", routes.GetTodos)
 	router.GET("/todo/:id", routes.GetTodoById)
 	router.DELETE("/todo/create", routes.DeleteTodo)
 	router.GET("/todos/trash", routes.GetTodosFromTrash)
 	router.PATCH("/todo/trash", routes.UpdateTodoFromTrash)
+	router.Run(":" + port)
 }
