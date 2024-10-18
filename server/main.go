@@ -21,8 +21,10 @@ func main() {
 	router.PUT("/todo/update/:id", routes.UpdateTodo)
 	router.GET("/todos", routes.GetTodos)
 	router.GET("/todo/:id", routes.GetTodoById)
-	router.DELETE("/todo/create", routes.DeleteTodo)
+
+	router.PATCH("/todo/update-trash/:id", routes.UpdateTodoFromTrash)
 	router.GET("/todos/trash", routes.GetTodosFromTrash)
-	router.PATCH("/todo/trash", routes.UpdateTodoFromTrash)
+	router.GET("/todos/trash/:id", routes.GetTodoByIdFromTrash)
+	router.DELETE("/todo/delete/:id", routes.DeleteTodo)
 	router.Run(":" + port)
 }

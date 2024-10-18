@@ -83,19 +83,51 @@ func UpdateTodo(c *gin.Context) {
 		},
 	)
 
-	if checkErr(c, err) { 
+	if checkErr(c, err) {
 		return
 	}
 	c.JSON(http.StatusOK, result.ModifiedCount)
 }
 
-func GetTodos(c *gin.Context) {}
+func GetTodos(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	var todos []bson.M
+	cursor, err := todoCollection.Find(ctx, bson.M{})
+	if checkErr(c, err) {
+		return
+	}
 
-func GetTodoById(c *gin.Context) {}
+	if err := cursor.All(ctx, &todos); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(todos)
+	c.JSON(http.StatusOK, todos)
+}
+
+func GetTodoById(c *gin.Context) {
+	todoId := c.Params.ByName("id")
+	docID, _ := primitive.ObjectIDFromHex(todoId)
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	var todo bson.M
+	if err := todoCollection.FindOne(ctx, bson.M{"_id": docID}).Decode(&todo); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(todo)
+	c.JSON(http.StatusOK, todo)
+}
 
 func DeleteTodo(c *gin.Context) {}
 
 func GetTodosFromTrash(c *gin.Context) {}
+
+func GetTodoByIdFromTrash(c *gin.Context) {}
 
 func UpdateTodoFromTrash(c *gin.Context) {}
 
