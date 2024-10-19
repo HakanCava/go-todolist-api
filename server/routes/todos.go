@@ -93,7 +93,9 @@ func GetTodos(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 	var todos []bson.M
-	cursor, err := todoCollection.Find(ctx, bson.M{})
+
+	filter := bson.M{"isTrash": false} // only isTrash: false
+	cursor, err := todoCollection.Find(ctx, filter)
 	if checkErr(c, err) {
 		return
 	}
@@ -123,13 +125,87 @@ func GetTodoById(c *gin.Context) {
 	c.JSON(http.StatusOK, todo)
 }
 
-func DeleteTodo(c *gin.Context) {}
+func UpdateTodoFromTrash(c *gin.Context) {
+	todoId := c.Params.ByName("id")
+	docID, _ := primitive.ObjectIDFromHex(todoId)
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
 
-func GetTodosFromTrash(c *gin.Context) {}
+	type IsTrash struct {
+		IsTrash *bool `json:"isTrash"`
+	}
+	var isTrash IsTrash
+	if err := c.BindJSON(&isTrash); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	var existingTodo bson.M
+	err := todoCollection.FindOne(ctx, bson.M{"_id": docID}).Decode(&existingTodo)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			fmt.Println(err)
+			return
+		}
+	}
 
-func GetTodoByIdFromTrash(c *gin.Context) {}
+	result, err := todoCollection.UpdateOne(ctx, bson.M{"_id": docID}, bson.D{{Key: "$set", Value: bson.D{{Key: "isTrash", Value: isTrash.IsTrash}}}})
 
-func UpdateTodoFromTrash(c *gin.Context) {}
+	if checkErr(c, err) {
+		return
+	}
+
+	c.JSON(http.StatusOK, result.ModifiedCount)
+}
+
+func GetTodosFromTrash(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	var todos []bson.M
+
+	filter := bson.M{"isTrash": true} // only isTrash: true
+	cursor, err := todoCollection.Find(ctx, filter)
+	if checkErr(c, err) {
+		return
+	}
+
+	if err := cursor.All(ctx, &todos); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(todos)
+	c.JSON(http.StatusOK, todos)
+}
+
+func DeleteTodo(c *gin.Context) {
+	todoId := c.Params.ByName("id")
+	docID, _ := primitive.ObjectIDFromHex(todoId)
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	var existingTodo bson.M
+	err := todoCollection.FindOne(ctx, bson.M{"_id": docID}).Decode(&existingTodo)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			fmt.Println(err)
+			return
+		}
+	}
+
+	result, err := todoCollection.DeleteOne(ctx, bson.M{"_id": docID})
+	if checkErr(c, err) {
+		return
+	}
+	c.JSON(http.StatusOK, result.DeletedCount)
+}
 
 func checkErr(c *gin.Context, err error) bool {
 	if err != nil {
