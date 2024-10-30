@@ -19,6 +19,7 @@ interface Props {
   mutate?: (
     options?: RefetchOptions
   ) => Promise<QueryObserverResult<unknown, Error>>;
+  close?: VoidFunction;
 }
 
 const schema = z.object({
@@ -34,7 +35,7 @@ export type FormValues = {
   isTrash?: boolean;
 };
 
-const TodoForm: FC<Props> = ({ id, title, mode, mutate }) => {
+const TodoForm: FC<Props> = ({ id, title, mode, mutate, close }) => {
   const { data } = useQuery({
     queryKey: ["todo"],
     queryFn: () => id && getTodo(id),
@@ -70,6 +71,10 @@ const TodoForm: FC<Props> = ({ id, title, mode, mutate }) => {
       if (mutate) {
         console.log("mutttt");
         await mutate();
+      }
+
+      if (close) {
+        close();
       }
     } catch (error) {
       console.log(error);

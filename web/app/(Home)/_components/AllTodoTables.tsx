@@ -77,6 +77,7 @@ const AllTodoTables = () => {
                     mode="update"
                     mutate={refetch}
                     id={row.original._id}
+                    close={updateRef.current?.close}
                   />
                 ),
                 shouldBeClosedOutside: true,
@@ -103,7 +104,14 @@ const AllTodoTables = () => {
           className="text-white flex justify-center items-center gap-3"
           onClick={() =>
             createRef.current?.show({
-              form: <TodoForm title="Create" mode="create" mutate={refetch} />,
+              form: (
+                <TodoForm
+                  title="Create"
+                  mode="create"
+                  mutate={refetch}
+                  close={createRef.current?.close}
+                />
+              ),
               shouldBeClosedOutside: true,
             })
           }
