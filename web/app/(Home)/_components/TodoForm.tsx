@@ -57,7 +57,6 @@ const TodoForm: FC<Props> = ({ id, title, mode, mutate, close }) => {
   });
 
   const onSubmit = async (values: FormValues) => {
-    console.log("Form submitted values: ", values);
     try {
       if (id && mode === "update") {
         await updateTodo(id, values);
@@ -67,7 +66,6 @@ const TodoForm: FC<Props> = ({ id, title, mode, mutate, close }) => {
         toast.success("Todo created");
       }
       if (mutate) {
-        console.log("mutttt");
         await mutate();
       }
 

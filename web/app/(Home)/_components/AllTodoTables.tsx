@@ -93,7 +93,6 @@ const AllTodoTables = () => {
     return <div>Loading...</div>;
   }
   if (isError) {
-    console.log("error: ", error);
     return <div>{error.message}</div>;
   }
 

@@ -17,14 +17,12 @@ const TrashTodoTables = () => {
     queryKey: ["trash-todos"],
     queryFn: getAllTrashTodos,
   });
-  console.log("trash-todos: ", data);
 
   const todoColumns: ColumnDef<Todo>[] = [
     {
       accessorKey: "",
       header: "Todos",
       cell: ({ row }) => {
-        console.log("row: ", row);
         if (row.original.completed) {
           return <FileCheck className="text-green-400" />;
         } else {
