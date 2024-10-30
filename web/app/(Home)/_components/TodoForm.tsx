@@ -60,11 +60,9 @@ const TodoForm: FC<Props> = ({ id, title, mode, mutate, close }) => {
     console.log("Form submitted values: ", values);
     try {
       if (id && mode === "update") {
-        //update
         await updateTodo(id, values);
         toast.success("Todo updated");
       } else {
-        //create
         await createTodo(values);
         toast.success("Todo created");
       }
